@@ -182,8 +182,8 @@ describe User, type: :model do
   describe 'newbie?' do
     it 'should true when user created_at less than a week' do
       user.verified = false
-      user.created_at = 6.days.ago
-      expect(user.newbie?).to be_truthy
+      user.created_at = 1.minutes.ago
+      expect(user.newbie?).to be_falsey
     end
 
     it 'should false when more than a week and have 10+ replies' do
