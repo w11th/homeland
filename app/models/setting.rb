@@ -19,6 +19,7 @@ class Setting < RailsSettings::Base
     after_topic_html
     before_topic_html
     node_ids_hide_in_topics_index
+    node_ids_high_level
     reject_newbie_reply_in_the_evening
     ban_words_on_reply
     newbie_notices
@@ -39,6 +40,10 @@ class Setting < RailsSettings::Base
 
     def has_admin?(email)
       self.admin_emails.split(SEPARATOR_REGEXP).include?(email)
+    end
+
+    def has_high_level_node?(node_id)
+      self.node_ids_high_level.split(SEPARATOR_REGEXP).collect(&:to_i).include?(node_id)
     end
 
     # topic,home,wiki,site,note,team,github

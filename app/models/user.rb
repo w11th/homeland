@@ -161,6 +161,10 @@ class User < ApplicationRecord
     return false
   end
 
+  def high_level?
+    self.admin? || self.verified?
+  end
+
   def roles?(role)
     case role
     when :admin then admin?

@@ -112,6 +112,7 @@
     admin_emails: "管理员 Email，在此名单的将有管理员权限（一行一个）"
     reject_newbie_reply_in_the_evening: "禁止新手在晚上回帖"
     node_ids_hide_in_topics_index: "要在论坛首页列表隐藏的节点,以逗号隔开"
+    node_ids_high_level: "只有管理员和认证会员才能看到的节点"
     custom_head_html: "自定 HTML head 区域的内容"
     site_index_html: "酷站列表首页头的 HTML"
     navbar_brand_html: "导航栏 Logo"

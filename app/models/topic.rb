@@ -45,6 +45,8 @@ class Topic < ApplicationRecord
   scope :popular,            -> { where('likes_count > 5') }
   scope :excellent,          -> { where('excellent >= 1') }
   scope :without_hide_nodes, -> { exclude_column_ids('node_id', Topic.topic_index_hide_node_ids) }
+  scope :high_level, -> { where(node_id: Topic.high_level_node_ids) }
+  scope :without_high_level_nodes, -> { exclude_column_ids('node_id', Topic.high_level_node_ids) }
   scope :without_body,       -> { select(column_names - ['body']) }
   scope :without_node_ids,   -> (ids) { exclude_column_ids('node_id', ids) }
   scope :exclude_column_ids, lambda { |column, ids|
@@ -109,6 +111,10 @@ class Topic < ApplicationRecord
 
   def self.topic_index_hide_node_ids
     Setting.node_ids_hide_in_topics_index.to_s.split(',').collect(&:to_i)
+  end
+
+  def self.high_level_node_ids
+    Setting.node_ids_high_level.to_s.split(',').collect(&:to_i)
   end
 
   before_save :store_cache_fields
@@ -224,6 +230,10 @@ class Topic < ApplicationRecord
   def floor_of_reply(reply)
     reply_index = reply_ids.index(reply.id)
     reply_index + 1
+  end
+
+  def high_level?
+    return Setting.has_high_level_node?(Topic.node_id)
   end
 
   def self.notify_topic_created(topic_id)

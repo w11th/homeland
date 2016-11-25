@@ -31,6 +31,10 @@ class Node < ApplicationRecord
     @no_point ||= self.find_builtin_node(61, 'NoPoint')
   end
 
+  def high_level?
+    Setting.has_high_level_node?(id)
+  end
+
   # 是否 Summary 过多需要折叠
   def collapse_summary?
     @collapse_summary ||= self.summary_html.scan(/\<p\>|\<ul\>/).size > 2
