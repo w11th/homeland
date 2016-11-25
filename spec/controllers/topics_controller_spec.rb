@@ -161,4 +161,6 @@ describe TopicsController, type: :controller do
       expect(topic.reload.node_id).to eq(Node.no_point.id)
     end
   end
+
+  #TODO add high_level test
 end

@@ -4,20 +4,29 @@ class TopicsController < ApplicationController
                                      :action, :favorites]
   load_and_authorize_resource only: [:new, :edit, :create, :update, :destroy,
                                      :favorite, :unfavorite, :follow, :unfollow]
-
   before_action :set_topic, only: [:ban, :edit, :update, :destroy, :follow,
                                    :unfollow, :action]
 
   def index
+    @high_level_suggest_topics = []
     @suggest_topics = []
     if params[:page].to_i <= 1
-      @suggest_topics = Topic.without_hide_nodes.suggest.fields_for_list.limit(3)
+      @suggest_topics = Topic.without_hide_nodes.without_high_level_nodes.suggest.fields_for_list.limit(3)
+      if current_user && current_user.high_level?
+        @high_level_suggest_topics = Topic.high_level.suggest.fields_for_list.limit(3)
+        @suggest_topics = @high_level_suggest_topics + @suggest_topics
+      end
     end
     @topics = Topic.last_actived.without_suggest
     @topics =
       if current_user
-        @topics.without_nodes(current_user.blocked_node_ids)
-          .without_users(current_user.blocked_user_ids)
+        if current_user.high_level?
+          @topics.without_nodes(current_user.blocked_node_ids)
+            .without_users(current_user.blocked_user_ids)
+        else
+          @topics.without_nodes(current_user.blocked_node_ids)
+            .without_users(current_user.blocked_user_ids).without_high_level_nodes
+        end
       else
         @topics.without_hide_nodes
       end
@@ -32,7 +41,7 @@ class TopicsController < ApplicationController
   end
 
   def feed
-    @topics = Topic.without_hide_nodes.recent.without_body.limit(20).includes(:node, :user, :last_reply_user)
+    @topics = Topic.without_hide_nodes.without_high_level_nodes.recent.without_body.limit(20).includes(:node, :user, :last_reply_user)
     render layout: false if stale?(@topics)
   end
 
