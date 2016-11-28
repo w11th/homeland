@@ -47,18 +47,26 @@ class TopicsController < ApplicationController
 
   def node
     @node = Node.find(params[:id])
-    @topics = @node.topics.last_actived.fields_for_list
-    @topics = @topics.includes(:user).paginate(page: params[:page], per_page: 25)
-    title = @node.id == Node.job.id ? @node.name : "#{@node.name} &raquo; #{t('menu.topics')}"
-    @page_title = [@node.name, t('menu.topics')].join(' · ')
-    if stale?(etag: [@node, @topics], template: 'topics/index')
-      render action: 'index'
+    if @node.high_level? && !(current_user && current_user.high_level?)
+      render_404
+    else
+      @topics = @node.topics.last_actived.fields_for_list
+      @topics = @topics.includes(:user).paginate(page: params[:page], per_page: 25)
+      title = @node.id == Node.job.id ? @node.name : "#{@node.name} &raquo; #{t('menu.topics')}"
+      @page_title = [@node.name, t('menu.topics')].join(' · ')
+      if stale?(etag: [@node, @topics], template: 'topics/index')
+        render action: 'index'
+      end
     end
   end
 
   def node_feed
     @node = Node.find(params[:id])
-    @topics = @node.topics.recent.without_body.limit(20)
+    if @node.high_level?
+      @topics = []
+    else
+      @topics = @node.topics.recent.without_body.limit(20)
+    end
     render layout: false if stale?([@node, @topics])
   end
 
@@ -96,6 +104,7 @@ class TopicsController < ApplicationController
   def show
     @topic = Topic.unscoped.includes(:user).find(params[:id])
     render_404 if @topic.deleted?
+    render_404 if @topic.high_level? && !(current_user && current_user.high_level?)
 
     @topic.hits.incr(1)
     @node = @topic.node
@@ -116,6 +125,7 @@ class TopicsController < ApplicationController
       @topic.node_id = params[:node]
       @node = Node.find_by_id(params[:node])
       render_404 if @node.blank?
+      render_404 if @node.high_level? && !current_user.high_level?
     end
   end
 
@@ -143,8 +153,10 @@ class TopicsController < ApplicationController
     @topic.admin_editing = true if current_user.admin?
 
     if can?(:change_node, @topic)
-      # 锁定接点的时候，只有管理员可以修改节点
-      @topic.node_id = topic_params[:node_id]
+      unless Setting.has_high_level_node?(node_id) && !current_user.high_level?
+        # 锁定接点的时候，只有管理员可以修改节点
+        @topic.node_id = topic_params[:node_id]
+      end
 
       if current_user.admin? && @topic.node_id_changed?
         # 当管理员修改节点的时候，锁定节点
@@ -163,8 +175,12 @@ class TopicsController < ApplicationController
   end
 
   def favorite
-    current_user.favorite_topic(params[:id])
-    render plain: '1'
+    unless @topic.high_level? && !current_user.high_level?
+      current_user.favorite_topic(params[:id])
+      render plain: '1'
+    else
+      render plain: '0'
+    end
   end
 
   def unfavorite
@@ -173,8 +189,12 @@ class TopicsController < ApplicationController
   end
 
   def follow
-    @topic.push_follower(current_user.id)
-    render plain: '1'
+    unless @topic.high_level? && !current_user.high_level?
+      @topic.push_follower(current_user.id)
+      render plain: '1'
+    else
+      render plain: '0'
+    end
   end
 
   def unfollow

@@ -233,7 +233,7 @@ class Topic < ApplicationRecord
   end
 
   def high_level?
-    return Setting.has_high_level_node?(Topic.node_id)
+    return Setting.has_high_level_node?(node_id)
   end
 
   def self.notify_topic_created(topic_id)
