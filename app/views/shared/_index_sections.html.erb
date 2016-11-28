@@ -8,10 +8,9 @@
         <label class="media-left"><%= section.name %></label>
         <span class="nodes media-body">
           <% section.nodes.each do |node| %>
-            <% if node.high_level? && !(current_user && current_user.high_level?) %>
-              <% next %>
+            <% unless node.high_level? && !(current_user && current_user.high_level?) %>
+              <span class="name"><%= link_to(node.name, node_topics_path(node), title: node.name, data: { id: node.id })%></span>
             <% end %>
-            <span class="name"><%= link_to(node.name, node_topics_path(node), title: node.name, data: { id: node.id })%></span>
           <% end %>
         </span>
       </div>

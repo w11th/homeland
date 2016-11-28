@@ -150,7 +150,12 @@ class TopicsController < ApplicationController
     @topic.user_id = current_user.id
     @topic.node_id = params[:node] || topic_params[:node_id]
     @topic.team_id = ability_team_id
-    @topic.save
+    if Setting.has_high_level_node?(@topic.node_id) && !current_user.high_level?
+      @topic.errors.add :node_id, :invalid
+      return false
+    else
+      @topic.save
+    end
   end
 
   def preview
