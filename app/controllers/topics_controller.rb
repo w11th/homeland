@@ -19,12 +19,16 @@ class TopicsController < ApplicationController
     end
     @topics = Topic.last_actived.without_suggest
     @topics =
-      if current_user && current_user.high_level?
-        @topics.without_nodes(current_user.blocked_node_ids)
-          .without_users(current_user.blocked_user_ids)
+      if current_user
+        if current_user.high_level?
+          @topics.without_nodes(current_user.blocked_node_ids)
+            .without_users(current_user.blocked_user_ids)
+        else
+          @topics.without_nodes(current_user.blocked_node_ids)
+            .without_users(current_user.blocked_user_ids).without_high_level_nodes.without_hide_nodes
+        end
       else
-        @topics.without_nodes(current_user.blocked_node_ids)
-          .without_users(current_user.blocked_user_ids).without_high_level_nodes.without_hide_nodes
+        @topics.without_high_level_nodes.without_hide_nodes
       end
     @topics = @topics.fields_for_list
     @topics = @topics.paginate(page: params[:page], per_page: 22, total_entries: 1500).to_a

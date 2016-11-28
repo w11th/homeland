@@ -19,6 +19,7 @@ class SearchController < ApplicationController
         fields: { title: {}, body: {}, name: {}, login: {} }
       }
     }
+    #TODO 过滤 high_level 的帖子
     @result = Elasticsearch::Model.search(search_params, search_modules).paginate(page: params[:page], per_page: 30)
   end
 
