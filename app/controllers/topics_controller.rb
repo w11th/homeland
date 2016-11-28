@@ -72,7 +72,11 @@ class TopicsController < ApplicationController
 
   %w(no_reply popular).each do |name|
     define_method(name) do
-      @topics = Topic.without_hide_nodes.send(name.to_sym).last_actived.fields_for_list.includes(:user)
+      if current_user && current_user.high_level?
+        @topics = Topic.send(name.to_sym).last_actived.fields_for_list.includes(:user)
+      else
+        @topics = Topic.without_hide_nodes.without_high_level_nodes.send(name.to_sym).last_actived.fields_for_list.includes(:user)
+      end
       @topics = @topics.paginate(page: params[:page], per_page: 25, total_entries: 1500)
 
       @page_title = [t("topics.topic_list.#{name}"), t('menu.topics')].join(' · ')
@@ -87,14 +91,22 @@ class TopicsController < ApplicationController
   end
 
   def recent
-    @topics = Topic.without_hide_nodes.recent.fields_for_list.includes(:user)
+    if current_user && current_user.high_level?
+      @topics = Topic.recent.fields_for_list.includes(:user) 
+    else
+      @topics = Topic.without_hide_nodes.without_high_level_nodes.recent.fields_for_list.includes(:user)
+    end
     @topics = @topics.paginate(page: params[:page], per_page: 25, total_entries: 1500)
     @page_title = [t('topics.topic_list.recent'), t('menu.topics')].join(' · ')
     render action: 'index' if stale?(etag: @topics, template: 'topics/index')
   end
 
   def excellent
-    @topics = Topic.excellent.recent.fields_for_list.includes(:user)
+    if current_user && current_user.high_level?
+      @topics = Topic.excellent.recent.fields_for_list.includes(:user)
+    else
+      @topics = Topic.without_hide_nodes.without_high_level_nodes.excellent.recent.fields_for_list.includes(:user)
+    end
     @topics = @topics.paginate(page: params[:page], per_page: 25, total_entries: 1500)
 
     @page_title = [t('topics.topic_list.excellent'), t('menu.topics')].join(' · ')
