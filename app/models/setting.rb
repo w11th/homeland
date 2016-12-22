@@ -39,10 +39,12 @@ class Setting < RailsSettings::Base
     end
 
     def has_admin?(email)
+      self.admin_emails ||= []
       self.admin_emails.split(SEPARATOR_REGEXP).include?(email)
     end
 
     def has_high_level_node?(node_id)
+      self.node_ids_high_level ||= []
       self.node_ids_high_level.split(SEPARATOR_REGEXP).collect(&:to_i).include?(node_id)
     end
 
