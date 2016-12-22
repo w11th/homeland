@@ -1,6 +1,6 @@
 # ApplicationController
 class ApplicationController < ActionController::Base
-  protect_from_forgery with: :exception
+  protect_from_forgery prepend: true
   helper_method :unread_notify_count
   helper_method :turbolinks_app?, :turbolinks_ios?, :turbolinks_app_version
 
@@ -76,7 +76,7 @@ class ApplicationController < ActionController::Base
   end
 
   def store_location
-    session[:return_to] = request.request_uri
+    session[:return_to] = request.url
   end
 
   def redirect_back_or_default(default)
@@ -94,11 +94,15 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_user!(opts = {})
+    return if current_user
     if turbolinks_app?
-      render plain: '401 Unauthorized', status: 401 if current_user.blank?
-    else
-      super(opts)
+      render plain: '401 Unauthorized', status: 401
+      return
     end
+
+    store_location
+
+    super(opts)
   end
 
   def current_user
@@ -139,13 +143,18 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_no_sso!
+    redirect_to auth_sso_path if Setting.sso_enabled?
+  end
+
   private
 
   def user_locale
-    params[:locale] || cookies[:locale] || http_head_locale || I18n.default_locale
+    params[:locale] || cookies[:locale] || http_head_locale || Setting.default_locale || I18n.default_locale
   end
 
   def http_head_locale
+    return nil if Setting.auto_locale == false
     http_accept_language.language_region_compatible_from(I18n.available_locales)
   end
 end

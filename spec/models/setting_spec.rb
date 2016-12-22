@@ -13,7 +13,7 @@ describe Setting, type: :model do
     it 'should work' do
       allow(Setting).to receive(:domain).and_return("homeland.io")
       allow(Setting).to receive(:https).and_return(true)
-      expect(Setting.host).to eq "https://homeland.io"
+      expect(Setting.base_url).to eq "https://homeland.io"
     end
   end
 
@@ -41,6 +41,19 @@ describe Setting, type: :model do
       expect(Setting.has_module?('site')).to eq true
       expect(Setting.has_module?('team')).to eq true
       expect(Setting.has_module?('bbb')).to eq false
+    end
+  end
+
+  describe '#has_profile_field?' do
+    it 'should work' do
+      allow(Setting).to receive(:profile_fields).and_return("all")
+      expect(Setting.has_profile_field?("foo")).to eq true
+      allow(Setting).to receive(:profile_fields).and_return("weibo,facebook\ndouban\nqq")
+      expect(Setting.has_profile_field?('weibo')).to eq true
+      expect(Setting.has_profile_field?('facebook')).to eq true
+      expect(Setting.has_profile_field?('douban')).to eq true
+      expect(Setting.has_profile_field?('qq')).to eq true
+      expect(Setting.has_profile_field?('ccc')).to eq false
     end
   end
 end

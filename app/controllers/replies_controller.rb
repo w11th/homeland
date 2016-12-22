@@ -10,7 +10,6 @@ class RepliesController < ApplicationController
     @reply.user_id = current_user.id
 
     if @reply.save
-      @replies_count = @topic.replies_count + 1
       current_user.read_topic(@topic)
       @msg = t('topics.reply_success')
     else
@@ -25,7 +24,7 @@ class RepliesController < ApplicationController
       return
     end
 
-    @replies = Reply.unscoped.where('topic_id = ? and id > ?', @topic.id, last_id).without_body.order(:id).all
+    @replies = Reply.unscoped.where('topic_id = ? and id > ?', @topic.id, last_id).order(:id).all
     if current_user
       current_user.read_topic(@topic, replies_ids: @replies.collect(&:id))
     end

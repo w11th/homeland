@@ -44,7 +44,7 @@ textarea,
 body {
   background: #e9eaed;
   color: $black;
-  font-family: Helvetica, Arial, "PingFang SC", "Noto Sans", Roboto, "Microsoft Yahei", sans;
+  font-family: Helvetica, Arial, "PingFang SC", "Noto Sans", Roboto, "Microsoft Yahei", sans-serif;
   letter-spacing: .03em;
   padding-top: 65px;
 }
@@ -511,6 +511,12 @@ kbd {
   }
   .modal-footer {
     border-color: #e5e5e5;
+  }
+
+  @media (min-width: 768px) {
+    .modal-dialog {
+      width: 768px;
+    }
   }
 }
 

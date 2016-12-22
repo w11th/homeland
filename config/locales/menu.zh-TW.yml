@@ -57,6 +57,8 @@
     access_denied: "訪問被拒絕，你可能沒有權限或未登錄。"
     editor_toolbar_edit: "編輯"
     editor_toolbar_preview: "預覽"
+    editor_add_image: "上傳圖片"
+    editor_insert_codes: "插入代碼"
     node: "節點"
     by: "由"
     at: "在"
@@ -125,3 +127,4 @@
     tips: "隨機顯示的小帖士（一行一個）"
     ban_words_on_reply: "回帖禁止內容（一行一個）"
     blacklist_ips: "黑名單 IP 列表，將會直接攔截請求（一行一個）"
+    newbie_limit_time: "新註冊用戶（新手）限制期，單位秒（0 不限制），在新手期不能創建新話題，僅能回帖"

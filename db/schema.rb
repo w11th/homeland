@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160912124102) do
+ActiveRecord::Schema.define(version: 20161221022846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -26,7 +26,6 @@ ActiveRecord::Schema.define(version: 20160912124102) do
 
   create_table "comments", force: :cascade do |t|
     t.text     "body",             null: false
-    t.text     "body_html"
     t.integer  "user_id",          null: false
     t.string   "commentable_type"
     t.integer  "commentable_id"
@@ -62,6 +61,12 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["name"], name: "index_locations_on_name", using: :btree
+  end
+
+  create_table "monkeys", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "new_notifications", force: :cascade do |t|
@@ -164,7 +169,6 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.string   "slug",                           null: false
     t.string   "title",                          null: false
     t.text     "body",                           null: false
-    t.text     "body_html"
     t.boolean  "locked",         default: false
     t.integer  "version",        default: 0,     null: false
     t.integer  "editor_ids",     default: [],    null: false, array: true
@@ -189,7 +193,6 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.integer  "user_id",                         null: false
     t.integer  "topic_id",                        null: false
     t.text     "body",                            null: false
-    t.text     "body_html"
     t.integer  "state",              default: 1,  null: false
     t.integer  "liked_user_ids",     default: [],              array: true
     t.integer  "likes_count",        default: 0
@@ -259,12 +262,19 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.index ["user_id"], name: "index_team_users_on_user_id", using: :btree
   end
 
+  create_table "test_documents", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "mentioned_user_ids", default: [],              array: true
+    t.text     "body"
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
   create_table "topics", force: :cascade do |t|
     t.integer  "user_id",                               null: false
     t.integer  "node_id",                               null: false
     t.string   "title",                                 null: false
     t.text     "body",                                  null: false
-    t.text     "body_html"
     t.integer  "last_reply_id"
     t.integer  "last_reply_user_id"
     t.string   "last_reply_user_login"
@@ -294,6 +304,19 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.index ["suggested_at"], name: "index_topics_on_suggested_at", using: :btree
     t.index ["team_id"], name: "index_topics_on_team_id", using: :btree
     t.index ["user_id"], name: "index_topics_on_user_id", using: :btree
+  end
+
+  create_table "user_ssos", force: :cascade do |t|
+    t.integer  "user_id",      null: false
+    t.string   "uid",          null: false
+    t.string   "username"
+    t.string   "email"
+    t.string   "name"
+    t.string   "avatar_url"
+    t.text     "last_payload", null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+    t.index ["uid"], name: "index_user_ssos_on_uid", unique: true, using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -347,6 +370,14 @@ ActiveRecord::Schema.define(version: 20160912124102) do
     t.index ["location"], name: "index_users_on_location", using: :btree
     t.index ["login"], name: "index_users_on_login", using: :btree
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true, using: :btree
+  end
+
+  create_table "walking_deads", force: :cascade do |t|
+    t.string   "name"
+    t.string   "tag"
+    t.datetime "deleted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end

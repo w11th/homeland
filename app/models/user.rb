@@ -11,6 +11,7 @@ class User < ApplicationRecord
   include TopicFavorate
   include GithubRepository
   include UserCallbacks
+  include ProfileFields
 
   acts_as_cached version: 4, expires_in: 1.week
 
@@ -37,6 +38,7 @@ class User < ApplicationRecord
   has_many :devices
   has_many :team_users
   has_many :teams, through: :team_users
+  has_one :sso, class_name: 'UserSSO', dependent: :destroy
 
   attr_accessor :password_confirmation
 
@@ -155,10 +157,10 @@ class User < ApplicationRecord
 
   # 是否能发帖
   def newbie?
-    # return false if verified? || hr?
-    # created_at > 1.week.ago
-    # created_at > 10.minute.ago
-    return false
+    return false if verified? || hr?
+    t = Setting.newbie_limit_time.to_i
+    return false if t == 0
+    created_at > t.seconds.ago
   end
 
   def high_level?
@@ -229,7 +231,7 @@ class User < ApplicationRecord
   def letter_avatar_url(size)
     path = LetterAvatar.generate(self.login, size).sub('public/', '/')
 
-    "#{Setting.protocol}://#{Setting.domain}#{path}"
+    "#{Setting.base_url}#{path}"
   end
 
   def large_avatar_url

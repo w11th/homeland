@@ -21,6 +21,7 @@ class Setting < RailsSettings::Base
     node_ids_hide_in_topics_index
     node_ids_high_level
     reject_newbie_reply_in_the_evening
+    newbie_limit_time
     ban_words_on_reply
     newbie_notices
     tips
@@ -34,12 +35,12 @@ class Setting < RailsSettings::Base
       self.https == true ? 'https' : 'http'
     end
 
-    def host
+    def base_url
       [self.protocol, self.domain].join("://")
     end
 
     def has_admin?(email)
-      self.admin_emails ||= []
+      return false if self.admin_emails.blank?
       self.admin_emails.split(SEPARATOR_REGEXP).include?(email)
     end
 
@@ -48,10 +49,23 @@ class Setting < RailsSettings::Base
       self.node_ids_high_level.split(SEPARATOR_REGEXP).collect(&:to_i).include?(node_id)
     end
 
-    # topic,home,wiki,site,note,team,github
     def has_module?(name)
       return true if self.modules.blank? || self.modules == 'all'
       self.modules.split(SEPARATOR_REGEXP).include?(name.to_s)
+    end
+
+    def has_profile_field?(name)
+      return true if self.profile_fields.blank? || self.profile_fields == 'all'
+      self.profile_fields.split(SEPARATOR_REGEXP).include?(name.to_s)
+    end
+
+    def sso_enabled?
+      return false if self.sso_provider_enabled?
+      self.sso['enable'] == true
+    end
+
+    def sso_provider_enabled?
+      self.sso['enable_provider'] == true
     end
   end
 end

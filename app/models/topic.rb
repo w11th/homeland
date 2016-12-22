@@ -10,8 +10,8 @@ CORRECT_CHARS = [
 ]
 
 class Topic < ApplicationRecord
-  include Likeable
   include MarkdownBody
+  include Likeable
   include SoftDelete
   include Mentionable
   include Closeable
@@ -47,7 +47,6 @@ class Topic < ApplicationRecord
   scope :without_hide_nodes, -> { exclude_column_ids('node_id', Topic.topic_index_hide_node_ids) }
   scope :high_level, -> { where(node_id: Topic.high_level_node_ids) }
   scope :without_high_level_nodes, -> { exclude_column_ids('node_id', Topic.high_level_node_ids) }
-  scope :without_body,       -> { select(column_names - ['body']) }
   scope :without_node_ids,   -> (ids) { exclude_column_ids('node_id', ids) }
   scope :exclude_column_ids, lambda { |column, ids|
     if ids.empty?
@@ -101,7 +100,7 @@ class Topic < ApplicationRecord
   end
 
   def self.fields_for_list
-    columns = %w(body body_html who_deleted follower_ids)
+    columns = %w(body who_deleted follower_ids)
     select(column_names - columns.map(&:to_s))
   end
 

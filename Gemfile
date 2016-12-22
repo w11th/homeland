@@ -13,6 +13,9 @@ gem 'jquery-rails'
 gem 'jbuilder'
 gem 'turbolinks', '~> 5.0.0'
 gem 'dropzonejs-rails'
+gem 'rails_autolink'
+
+gem 'sanitize'
 
 gem 'pg'
 gem 'pghero'
