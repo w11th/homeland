@@ -1,3 +1,4 @@
+# coding: utf-8
 class TopicsController < ApplicationController
   before_action :authenticate_user!, only: [:new, :edit, :create, :update, :destroy,
                                      :favorite, :unfavorite, :follow, :unfollow,
@@ -170,7 +171,7 @@ class TopicsController < ApplicationController
     @topic.admin_editing = true if current_user.admin?
 
     if @topic.node_id != topic_params[:node_id] && can?(:change_node, @topic)
-      unless Setting.has_high_level_node?(node_id) && !current_user.high_level?
+      unless Setting.has_high_level_node?(@topic.node_id) && !current_user.high_level?
         # 锁定接点的时候，只有管理员可以修改节点
         @topic.node_id = topic_params[:node_id]
       end
