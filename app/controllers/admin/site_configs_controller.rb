@@ -1,3 +1,4 @@
+# coding: utf-8
 module Admin
   class SiteConfigsController < Admin::ApplicationController
     before_action :set_setting, only: [:edit, :update]
@@ -13,6 +14,8 @@ module Admin
         @site_config.value = setting_param[:value]
         @site_config.save
         @site_config.expire_cache
+        ## hotfix: update the cache after alter the node_ids_high_level
+        CacheVersion.section_node_updated_at if params[:id] == 'node_ids_high_level'
         redirect_to admin_site_configs_path, notice: '保存成功.'
       else
         redirect_to admin_site_configs_path
